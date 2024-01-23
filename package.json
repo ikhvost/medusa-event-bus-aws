@@ -1,0 +1,27 @@
+{
+  "name": "medusa-event-bus-aws",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint src --ext .ts"
+  },
+  "devDependencies": {
+    "@medusajs/types": "^1.11.10",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.496.0",
+    "@medusajs/modules-sdk": "^1.12.6",
+    "@medusajs/utils": "^1.11.3",
+    "awilix": "^10.0.1"
+  }
+}
