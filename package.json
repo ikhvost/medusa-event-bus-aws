@@ -1,6 +1,7 @@
 {
   "name": "medusa-event-bus-aws",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "A Medusa module for seamless integration with AWS EventBridge, enabling real-time event handling in headless e-commerce applications.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
