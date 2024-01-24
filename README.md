@@ -59,7 +59,7 @@ Configure the plugin by specifying the following options in `medusa-config.js`:
 
 The plugin listens to Medusa events (e.g., order creation, product updates) and sends these events to the configured AWS EventBridge event bus. Events in EventBridge can then be used to trigger various AWS services such as Lambda, SNS, SQS, etc.
 
-## Examples
+## Example
 
 ```json
 {
