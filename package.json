@@ -1,9 +1,36 @@
 {
   "name": "medusa-event-bus-aws",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
+  "homepage": "https://github.com/ikhvost/medusa-event-bus-aws",
+  "bugs": "https://github.com/ikhvost/medusa-event-bus-aws/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ikhvost/medusa-event-bus-aws"
+  },
+  "author": "Illia Khvost",
+  "keywords": [
+    "medusa",
+    "aws",
+    "eventbridge",
+    "ecommerce",
+    "headless-commerce",
+    "integration",
+    "plugin",
+    "nodejs",
+    "serverless",
+    "event-driven",
+    "real-time",
+    "medusa-plugin",
+    "medusa-module",
+    "aws-services",
+    "javascript"
+  ],
   "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc --build",
     "lint": "eslint src --ext .ts"
   },
   "devDependencies": {
@@ -16,6 +43,7 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
+    "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   },
   "dependencies": {
