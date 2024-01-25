@@ -1,6 +1,6 @@
 {
   "name": "medusa-event-bus-aws",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Medusa module for seamless integration with AWS EventBridge, enabling real-time event handling in headless e-commerce applications.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -32,10 +32,12 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc --build",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint \"{src,tests}/**/*.ts\"",
+    "test": "vitest --run"
   },
   "devDependencies": {
     "@medusajs/types": "^1.11.10",
+    "@types/node": "^20.11.6",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "eslint": "^8.56.0",
@@ -45,7 +47,8 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
   },
   "dependencies": {
     "@aws-sdk/client-eventbridge": "^3.496.0",

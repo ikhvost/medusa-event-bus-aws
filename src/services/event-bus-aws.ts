@@ -1,6 +1,7 @@
 import { EmitData, Logger } from '@medusajs/types'
 import { AbstractEventBusModuleService } from '@medusajs/utils'
 import { EventBridgeClient, PutEventsCommand, PutEventsRequestEntry } from '@aws-sdk/client-eventbridge'
+import { EOL } from 'os'
 import { EventBusAwsModuleOptions } from '../types'
 
 type InjectedDependencies = {
@@ -55,7 +56,7 @@ export default class AwsEventBridgeEventBus extends AbstractEventBusModuleServic
       const command = new PutEventsCommand({ Entries: [payload] })
 
       await this.#client.send(command)
-        .catch(error => { this.#logger.error('Error sending event to EventBridge:', error) })
+        .catch(error => { this.#logger.error(`Error sending event to AWS EventBridge:${EOL} ${error}`) })
     }
   }
 }
