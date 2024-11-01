@@ -1,62 +1,82 @@
-import { EmitData, Logger } from '@medusajs/types'
-import { AbstractEventBusModuleService } from '@medusajs/utils'
+import { InternalModuleDeclaration, Logger, MedusaContainer, Message } from '@medusajs/framework/types'
+import { AbstractEventBusModuleService } from '@medusajs/framework/utils'
 import { EventBridgeClient, PutEventsCommand, PutEventsRequestEntry } from '@aws-sdk/client-eventbridge'
 import { EOL } from 'os'
 import { EventBusAwsModuleOptions } from '../types'
 
-type InjectedDependencies = {
+export type InjectedDependencies = {
   eventBridgeClient: EventBridgeClient
   logger: Logger
 }
 
 export default class AwsEventBridgeEventBus extends AbstractEventBusModuleService {
-  #client: EventBridgeClient
-  #logger: Logger
-  #options: EventBusAwsModuleOptions
+  private readonly client: EventBridgeClient
+  private readonly logger: Logger
+  private readonly options: EventBusAwsModuleOptions
+  private readonly events: Map<string, Message[]>
 
-  constructor({ logger, eventBridgeClient }: InjectedDependencies, options: EventBusAwsModuleOptions) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    // eslint-disable-next-line prefer-rest-params
-    super(...arguments)
+  public constructor(
+    container: MedusaContainer & InjectedDependencies,
+    options: EventBusAwsModuleOptions,
+    declaration: InternalModuleDeclaration,
+  ) {
+    super(container, options, declaration)
 
-    this.#client = eventBridgeClient
-    this.#logger = logger
-    this.#options = options
+    this.client = container.eventBridgeClient
+    this.logger = container.logger
+    this.options = options
+    this.events = new Map()
   }
 
-  /**
-   * Emit a single event
-   * @param {string} eventName - the name of the event to be process.
-   * @param data - the data to send to the subscriber.
-   * @param options - options to add the job with
-   */
-  async emit<T>(eventName: string, data: T, options: Record<string, unknown>): Promise<void>
+  public async emit<T = unknown>(eventsData: Message<T> | Message<T>[]): Promise<void> {
+    const normalized = Array.isArray(eventsData) ? eventsData : [eventsData]
 
-  /**
-   * Emit a number of events
-   * @param {EmitData} data - the data to send to the subscriber.
-   */
-  async emit<T>(data: EmitData<T>[]): Promise<void>
-
-  async emit<T, TInput extends string | EmitData<T>[] = string>(
-    eventOrData: TInput,
-    data?: T,
-  ): Promise<void> {
-    const events: EmitData[] = Array.isArray(eventOrData) ? eventOrData : [{ eventName: eventOrData, data }]
-
-    for (const event of events) {
-      const payload: PutEventsRequestEntry = {
-        EventBusName: this.#options.eventBusName,
-        Source:       this.#options.eventBusName,
-        DetailType:   event.eventName,
-        Detail:       JSON.stringify(event.data),
-      }
-
-      const command = new PutEventsCommand({ Entries: [payload] })
-
-      await this.#client.send(command)
-        .catch(error => { this.#logger.error(`Error sending event to AWS EventBridge:${EOL} ${error}`) })
+    for (const eventData of normalized) {
+      await this.groupOrEmitEvent(eventData)
     }
+  }
+
+  public async releaseGroupedEvents(groupId: string) {
+    const grouped = this.events.get(groupId) || []
+
+    for (const event of grouped) {
+      await this.emitToEventBridge(event)
+    }
+
+    await this.clearGroupedEvents(groupId)
+  }
+
+  public async clearGroupedEvents(groupId: string) {
+    await Promise.resolve(this.events.delete(groupId))
+  }
+
+  private async groupOrEmitEvent<T = unknown>(eventData: Message<T>) {
+    const eventGroupId = eventData.metadata?.eventGroupId
+
+    if (eventGroupId) {
+      this.groupEvent(eventGroupId, eventData)
+    } else {
+      await this.emitToEventBridge(eventData)
+    }
+  }
+
+  private async emitToEventBridge<T>(eventData: Message<T>) {
+    const payload: PutEventsRequestEntry = {
+      EventBusName: this.options.eventBusName,
+      Source:       this.options.eventBusName,
+      DetailType:   eventData.name,
+      Detail:       JSON.stringify(eventData),
+    }
+
+    const command = new PutEventsCommand({ Entries: [payload] })
+
+    await this.client.send(command)
+      .catch(error => { this.logger.error(`Error sending event to AWS EventBridge:${EOL} ${error}`) })
+  }
+
+  private groupEvent<T = unknown>(groupId: string, eventData: Message<T>) {
+    const grouped = this.events.get(groupId) || []
+    grouped.push(eventData)
+    this.events.set(groupId, grouped)
   }
 }

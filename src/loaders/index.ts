@@ -1,5 +1,5 @@
 import { EventBridgeClient, ListEventBusesCommand } from '@aws-sdk/client-eventbridge'
-import { LoaderOptions } from '@medusajs/modules-sdk'
+import { LoaderOptions } from '@medusajs/framework/types'
 import { asValue } from 'awilix'
 import { EOL } from 'os'
 import { EventBusAwsModuleOptions } from '../types'
@@ -17,7 +17,7 @@ export default async ({
 
     logger?.info("Connection to AWS Event Bridge in module 'medusa-event-bus-aws' established")
   } catch (error) {
-    logger?.error(`An error occurred while connecting to AWS Event Bridge in module 'medusa-event-bus-aws':${EOL} ${error}`)
+    logger?.error(`An error occurred while connecting to AWS Event Bridge in module 'medusa-event-bus-aws':${EOL} ${error?.toString()}`)
   }
 
   container.register({ eventBridgeClient: asValue(client) })

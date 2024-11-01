@@ -1,6 +1,4 @@
----
-name: "ci"
-
+name: CI
 on:
   push:
     branches:
@@ -8,26 +6,34 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
-  ci:
-    runs-on: "ubuntu-latest"
-
+  CI:
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+        run_install: false
 
-      - name: Install
-        run: yarn
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'pnpm'
 
-      - name: Build
-        run: yarn build
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: yarn lint
+    - name: Lint
+      run: pnpm run lint
 
-      - name: Test
-        run: yarn test
+    - name: Build project
+      run: pnpm run build
+
+    - name: Test
+      run: pnpm run test
